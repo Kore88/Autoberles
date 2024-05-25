@@ -56,6 +56,7 @@
         <Authorized>
             <QuickGrid Class="table" Items="@viewReservations.AsQueryable()" Pagination="state">
                 <PropertyColumn Title="Felhasználónév" Property="reservation => reservation.Username" Sortable="true" />
+                <PropertyColumn Title="Autó ID" Property="reservation => reservation.CarID" Sortable="true" />
                 <PropertyColumn Title="Autó típusa (Placeholder)" Property="reservation => reservation.CarBrand" Sortable="true" />
                 <PropertyColumn Title="Foglalás kezdete" Property="reservation => reservation.StartDate" Sortable="true" />
                 <PropertyColumn Title="Foglalás vége" Property="reservation => reservation.EndDate" Sortable="true" />

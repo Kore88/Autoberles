@@ -2,6 +2,7 @@
 @using Microsoft.AspNetCore.Components.QuickGrid
 @using System.Security.Claims;
 @using Microsoft.EntityFrameworkCore
+@using System.Globalization
 @inject Autoberles.Data.MyDbContext DB
 @inject NavigationManager NM
 @rendermode InteractiveServer
@@ -59,29 +60,48 @@
 
     private async Task ShowGrid()
     {
-
-        filteredCars = await GetCarsExcludingDateRange(SearchStart, SearchEnd);
+        string startDateString0 = SearchStart.ToShortDateString();
+        string endDateString0 = SearchEnd.ToShortDateString();
+        filteredCars = await GetCarsExcludingDateRange(DateTime.Parse(startDateString0),DateTime.Parse(endDateString0));
         showQG = true;
     }
     private Task<List<Car>> GetCarsExcludingDateRange(DateTime startDate, DateTime endDate)
     {
+        var reservedCarIds = DB.Reservation
+            .Where(res => (res.StartDate <= endDate && res.EndDate >= startDate) || (res.StartDate >= startDate && res.EndDate <= endDate))
+            .Select(res => res.CarID)
+            .ToList();
 
-        return Task.FromResult(DB.Car.Where(res => res.ResStart > startDate || res.ResEnd > endDate).ToList());
+        var availableCars = DB.Car
+            .Where(car => !reservedCarIds.Contains(car.CarID))
+            .ToList();
+
+        return Task.FromResult(availableCars);
     }
 
     private async Task ReserveCar(Car car)
     {
-        Reservation newReservation = new Reservation
-           {
-               CarID = car.CarID,
-               UserID = DB.User.FirstOrDefault().UserID,
-               StartDate = SearchStart,
-               EndDate = SearchEnd
-           };
+        var overlappingReservations = await DB.Reservation
+            .AnyAsync(res => res.CarID == car.CarID && res.StartDate <= SearchEnd && res.EndDate >= SearchStart);
+
+        if (overlappingReservations)
+        {
+            NM.NavigateTo("/newReservation");
+        }
+        else
+        {
+            Reservation newReservation = new Reservation
+                {
+                    CarID = car.CarID,
+                    UserID = DB.User.FirstOrDefault().UserID,
+                    StartDate = SearchStart,
+                    EndDate = SearchEnd
+                };
 
             DB.Reservation.Add(newReservation);
             await DB.SaveChangesAsync();
             showQG = false;
             NM.NavigateTo("/");
+        }
     }
 }
