@@ -1,0 +1,87 @@
+﻿@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components.QuickGrid
+@using System.Security.Claims;
+@using Microsoft.EntityFrameworkCore
+@inject Autoberles.Data.MyDbContext DB
+@inject NavigationManager NM
+@rendermode InteractiveServer
+
+@page "/newReservation"
+@attribute [Authorize(Roles = "Administrator, User")]
+
+<PageTitle>Új foglalás</PageTitle>
+
+<h1>Új foglalás</h1>
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-auto">
+            <div class="d-flex">
+                <label class="mt-3 m-2">Kezdődátum:</label>
+                <div class="mt-3 me-5"><InputDate @bind-Value="SearchStart"></InputDate></div>
+                <label class="mt-3 m-2">Végdátum:</label>
+                <div class="mt-3"><InputDate @bind-Value="SearchEnd"></InputDate></div>
+            </div>
+        </div>
+    </div>
+    <div class="row justify-content-center">
+        <div class="col-auto">
+            <p class="btn btn-success mt-3" @onclick="ShowGrid">Keresés</p>
+        </div>
+    </div>
+</div>
+@if (showQG)
+{
+    <QuickGrid Class="table" Items="DB.Car">
+        <PropertyColumn Title="Márka" Property="car => car.Brand" Sortable="true" />
+        <PropertyColumn Title="Típus" Property="car => car.Type" Sortable="true" />
+        <PropertyColumn Title="Évjárat" Property="car => car.Year" Sortable="true" />
+        <PropertyColumn Title="Ár (HUF)" Property="car => car.Price" Sortable="true" />
+        <TemplateColumn Context="car" Title="Szerkesztés">
+            <button class="btn btn-success" @onclick="()=>ReserveCar(car)">Foglalás</button>
+        </TemplateColumn>
+    </QuickGrid>
+}
+
+@code{
+    [CascadingParameter]
+    public HttpContext httpContext { set; get; }
+
+    [SupplyParameterFromForm]
+    Reservation newRes { set; get; } = new();
+
+    public DateTime SearchStart = DateTime.Now;
+    public DateTime SearchEnd = DateTime.Now.AddDays(7);
+
+    private bool showQG = false;
+    private List<Car> filteredCars = new List<Car>();
+
+
+    private async Task ShowGrid()
+    {
+
+        filteredCars = await GetCarsExcludingDateRange(SearchStart, SearchEnd);
+        showQG = true;
+    }
+    private Task<List<Car>> GetCarsExcludingDateRange(DateTime startDate, DateTime endDate)
+    {
+
+        return Task.FromResult(DB.Car.Where(res => res.ResStart > startDate || res.ResEnd > endDate).ToList());
+    }
+
+    private async Task ReserveCar(Car car)
+    {
+        Reservation newReservation = new Reservation
+           {
+               CarID = car.CarID,
+               UserID = DB.User.FirstOrDefault().UserID,
+               StartDate = SearchStart,
+               EndDate = SearchEnd
+           };
+
+            DB.Reservation.Add(newReservation);
+            await DB.SaveChangesAsync();
+            showQG = false;
+            NM.NavigateTo("/");
+    }
+}
