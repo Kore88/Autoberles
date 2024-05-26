@@ -14,6 +14,44 @@
 
 <h1>Új foglalás</h1>
 
+@* @if ((DB.Reservation is null || DB.User is null || DB.Car is null))
+{
+    <span>Betöltés...</span>
+}
+else
+{
+    foreach(Reservation res in DB.Reservation)
+    {
+        ResViewModel rvm = new ResViewModel();
+        rvm.ResID = res.ReservationID;
+        rvm.CarID = res.CarID;
+        rvm.UserID = res.UserID;
+        rvm.ResStart = res.StartDate;
+        rvm.ResEnd = res.EndDate;
+        resViews.Add(rvm);
+    }
+}
+@foreach(Car car in DB.Car)
+{
+    for (int i = 0; i < resViews.Count; i++)
+    {
+        if(car.CarID == resViews[i].CarID)
+        {
+            resViews[i].BrandName = car.Brand;
+        }
+    }
+}
+@foreach(User user in DB.User)
+{
+    for (int i = 0; i < resViews.Count; i++)
+    {
+        if(user.UserID == resViews[i].UserID)
+        {
+            resViews[i].UserName = user.Username;
+        }
+    }
+} *@
+
 <div class="container">
     <div class="row justify-content-center">
         <div class="col-auto">
@@ -33,7 +71,7 @@
 </div>
 @if (showQG)
 {
-    <QuickGrid Class="table" Items="DB.Car">
+    <QuickGrid Class="table" Items="@filteredCars.AsQueryable()">
         <PropertyColumn Title="Márka" Property="car => car.Brand" Sortable="true" />
         <PropertyColumn Title="Típus" Property="car => car.Type" Sortable="true" />
         <PropertyColumn Title="Évjárat" Property="car => car.Year" Sortable="true" />
@@ -57,6 +95,19 @@
     private bool showQG = false;
     private List<Car> filteredCars = new List<Car>();
 
+    // public class ResViewModel()
+    // {
+    //     public int ResID { get; set; }
+    //     public int CarID { get; set; }
+    //     public int UserID { get; set; }
+    //     public string BrandName { get; set; }
+    //     public string UserName { get; set; }
+    //     public DateTime ResStart { get; set; }
+    //     public DateTime ResEnd { get; set; }
+
+    // }
+
+    // List<ResViewModel> resViews = new List<ResViewModel>();
 
     private async Task ShowGrid()
     {
