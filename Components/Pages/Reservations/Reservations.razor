@@ -61,7 +61,6 @@
                 <PropertyColumn Title="Foglalás kezdete" Property="reservation => reservation.StartDate" Sortable="true" />
                 <PropertyColumn Title="Foglalás vége" Property="reservation => reservation.EndDate" Sortable="true" />
                 <TemplateColumn Context="reservation" Title="Szerkesztés">
-                    <a href="@($"editReservation?Id={reservation.ReservationID}")" class="btn btn-success">Szerkesztés</a>
                     <a href="@($"deleteReservation?Id={reservation.ReservationID}")" class="btn btn-danger">Törlés</a>
                 </TemplateColumn>
             </QuickGrid>
@@ -76,7 +75,6 @@
                 <PropertyColumn Title="Foglalás kezdete" Property="reservation => reservation.StartDate" Sortable="true" />
                 <PropertyColumn Title="Foglalás vége" Property="reservation => reservation.EndDate" Sortable="true" />
                 <TemplateColumn Context="reservation" Title="Szerkesztés">
-                    <a href="@($"editReservation?Id={reservation.ReservationID}")" class="btn btn-success">Szerkesztés</a>
                     <a href="@($"deleteReservation?Id={reservation.ReservationID}")" class="btn btn-danger">Törlés</a>
                 </TemplateColumn>
             </QuickGrid>
