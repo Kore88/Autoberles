@@ -6,6 +6,7 @@
 @attribute [Authorize(Roles = "Administrator, User")]
 @inject Autoberles.Data.MyDbContext DB
 @rendermode InteractiveServer
+@layout Autoberles.Components.Layout.DBLayOut
 
 <AuthorizeView Roles="Administrator">
     <Authorized>

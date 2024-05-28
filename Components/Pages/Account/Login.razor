@@ -7,6 +7,7 @@
 @using System.Text
 @inject MyDbContext DB
 @inject NavigationManager NavManager
+@layout Autoberles.Components.Layout.LoginLayout
 
 <h3>Bejelentkezés</h3>
 <hr />
@@ -20,12 +21,12 @@
             </div>
             <div class="mb-3">
                 <label>Felhasználónév:</label>
-                <InputText @bind-Value="loginModel.Username" class="form-control" placeholder="UserName" />
+                <InputText @bind-Value="loginModel.Username" class="form-control bg-secondary" placeholder="UserName" />
                 <ValidationMessage For="()=>loginModel.Username" />
             </div>
             <div class="mb-3">
                 <label>Jelszó:</label>
-                <InputText @bind-Value="loginModel.Password" class="form-control" placeholder="Password" />
+                <InputText @bind-Value="loginModel.Password" class="form-control bg-secondary" placeholder="Password" />
                 <ValidationMessage For="()=>loginModel.Password" />
             </div>
             <div class="mb-3 text-center">
